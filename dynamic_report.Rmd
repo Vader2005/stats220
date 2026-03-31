@@ -1,0 +1,129 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+library(tidyverse)
+```
+
+```{css}
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  margin: 20px;
+  background-color: #f7f9fc;
+  color: #2c3e50;
+}
+
+h1 {
+  color: #1f4e79;
+  text-align: center;
+  border-bottom: 3px solid #1f4e79;
+  padding-bottom: 10px;
+}
+
+h2 {
+  color: #2a7f62;
+  margin-top: 30px;
+}
+
+p {
+  font-size: 16px;
+}
+
+strong {
+  color: #d35400;
+}
+
+code {
+  background-color: #eef2f7;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Style for sections */
+.section {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+/* Center plots */
+img {
+  display: block;
+  margin: 20px auto;
+  max-width: 90%;
+  border-radius: 8px;
+}
+```
+
+## Track Gym Usage and Workout Patterns
+This report analyses gym session data collected over a 2 week period. 
+The aim is to identify patterns in workout duration, intensity, and how gym crowdedness varies throughout the day. 
+
+```{r}
+# Load out data in
+logged_data <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRLxXC2xSobn24g2Xld7OFDypu9f8TiruopXewkYtA5C2oi32aGyKglj5N4Ua7EbkGxF2R_67-nEHPm/pub?output=csv")
+logged_data <- logged_data[, -1] # Remove first TimeStamp column
+
+# Rename our data
+latest_data <- rename(
+  logged_data,
+  time_of_day = What.time.of.day.was.your.session.,
+  type_workout = What.type.of.workout.did.you.just.do.,
+  session_length = How.long.did.your.session.last.in.minutes..,
+  workout_intensity = How.intense.was.your.workout.,
+  gym_crowdedness = How.crowded.was.the.gym.,
+  day = Which.day.was.todays.session.
+)
+
+```
+
+
+## Summary of Workout Duration
+```{r}
+mean_duration <- mean(latest_data$session_length, na.rm = TRUE)
+max_duration <- max(latest_data$session_length, na.rm = TRUE)
+
+```
+
+On average, gym sessions lasted `r round(mean_duration, 1)` minutes, with the longest session reaching `r max_duration` minutes. This suggests some variability in workout duration. 
+
+
+## Distribution of workout types
+```{r}
+ggplot(latest_data, aes(x = type_workout)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Workout Types",
+    x = "Workout Type",
+    y = "Count"
+  )
+
+```
+
+This chart shows the distribution of workouts that were recorded. 
+
+
+## Average Workout Intensity by Time of Day
+```{r}
+latest_data %>%
+  group_by(time_of_day) %>%
+  summarise(avg_intensity = mean(workout_intensity)) %>%
+  ggplot(aes(x = time_of_day, y = avg_intensity)) + 
+  geom_col() + 
+  labs(
+    title = "Average Workout Intensity vs Time of Day",
+    x = "Time of Day",
+    y = "Average Intensity"
+  )
+
+```
+
+Workout intensity tends to vary across different times of the day, as shown above. The variation in intensity suggests that certain times of day may be more effective for higher effort workouts. 
+
+
