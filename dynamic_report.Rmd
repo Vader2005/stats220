@@ -106,7 +106,7 @@ ggplot(latest_data, aes(x = type_workout)) +
 
 ```
 
-This chart shows the distribution of workouts that were recorded. 
+This chart shows the distribution of workouts that were recorded. There appears to be more Upper Body and Push workouts done, with the least workout done being Cardio. 
 
 
 ## Average Workout Intensity by Time of Day
